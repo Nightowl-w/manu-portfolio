@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Manpreet Singh — Application Security & VAPT</title>
+  <meta name="description" content="Manpreet Singh — application security specialist, web & network penetration tester and secure code reviewer. CEH · CCSP." />
+  <meta name="theme-color" content="#050608" />
+  <meta property="og:title" content="Manpreet Singh — Application Security & VAPT" />
+  <meta property="og:description" content="Web application pentesting, network pentesting, source code review, vulnerability assessment, PoC reporting and retesting." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Bebas+Neue&family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip-link" href="#about">Skip to content</a>
+
+  <!-- ============ SVG SPRITE ============ -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="bat" viewBox="0 0 200 100"><path d="M100 34 L106 32 L111 16 L115 34 Q150 38 196 14 Q170 34 176 56 Q160 44 150 60 Q132 50 126 72 Q108 74 100 92 Q92 74 74 72 Q68 50 50 60 Q40 44 24 56 Q30 34 4 14 Q50 38 85 34 L89 16 L94 32 Z"/></symbol>
+    <symbol id="i-web" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M6.5 6.5h.01M9 6.5h.01"/><circle cx="12" cy="14.5" r="2.4"/><path d="M12 10.8v1.3M12 16.9v1.3M8.3 14.5h1.3M14.4 14.5h1.3"/></symbol>
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6.2-6.2"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M12 7.2v4.3M12 11.5l-5.4 5.8M12 11.5l5.4 5.8"/></symbol>
+    <symbol id="i-api" viewBox="0 0 24 24"><path d="M8 4C6 4 5 5 5 7v2c0 1.5-1 2.5-2 3 1 .5 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5 1 2.5 2 3-1 .5-2 1.5-2 3v2c0 2-1 3-3 3"/><path d="M10 12h.01M14 12h.01"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/><rect x="10" y="10" width="4" height="4"/></symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.8"/><path d="M12 15v2"/></symbol>
+    <symbol id="i-flow" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="8.5" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v3.5h11V8M12 11.5V16"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-report" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-retest" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+    <symbol id="i-linkedin" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10.5V17M8 7.2v.01M12 17v-3.8a2.2 2.2 0 0 1 4.4 0V17M12 10.5V17"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3.1-.4 6.4-1.5 6.4-7A5.4 5.4 0 0 0 20 4.8 5.1 5.1 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5.1 5.1 0 0 0 5 4.8a5.4 5.4 0 0 0-1.5 3.8c0 5.4 3.3 6.6 6.4 7A3.4 3.4 0 0 0 9 18.1V22"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6L3 21z"/><path d="M8.5 10h7M8.5 13.5h4.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5L2 9z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path d="M4 17l6-6-6-6M12 19h8"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4M12 15v2"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2V5z"/><path d="M4 19a2 2 0 0 1 2-2h14v4H6a2 2 0 0 1-2-2zM9 7h7"/></symbol>
+  </svg>
+
+  <!-- ============ PRELOADER ============ -->
+  <div id="preloader" aria-hidden="true">
+    <div class="pl-wing pl-wing-l"></div>
+    <div class="pl-wing pl-wing-r"></div>
+    <div class="pl-core">
+      <svg class="pl-bat" viewBox="0 0 200 100"><path d="M100 34 L106 32 L111 16 L115 34 Q150 38 196 14 Q170 34 176 56 Q160 44 150 60 Q132 50 126 72 Q108 74 100 92 Q92 74 74 72 Q68 50 50 60 Q40 44 24 56 Q30 34 4 14 Q50 38 85 34 L89 16 L94 32 Z"/></svg>
+      <div class="pl-title">BATCOMPUTER <span>v7.86</span></div>
+      <div class="pl-log"></div>
+      <div class="pl-bar"><i></i></div>
+      <div class="pl-foot"><span class="pl-pct">000</span><span>click to skip</span></div>
+    </div>
+  </div>
+
+  <!-- ============ FX LAYERS ============ -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"><svg class="cursor-bat"><use href="#bat"/></svg></div>
+  <div class="scroll-progress" aria-hidden="true"><i></i></div>
+  <div class="detective-overlay" aria-hidden="true"></div>
+  <div class="detective-badge" aria-hidden="true"><span class="live-dot cyan"></span> DETECTIVE MODE · scanning for clues</div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="signal-flash" aria-hidden="true"><div class="sf-disc"><svg><use href="#bat"/></svg></div></div>
+  <div class="bat-transition" aria-hidden="true"><svg viewBox="0 0 200 100"><use href="#bat"/></svg></div>
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="#home" class="logo" aria-label="Manpreet Singh — home">
+        <svg class="logo-bat"><use href="#bat"/></svg>
+        <span class="logo-text">MANPREET<b>.S</b></span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#experience">Missions</a>
+        <a href="#projects">Arsenal</a>
+        <a href="#services">Services</a>
+        <a href="#skills">Skills</a>
+        <a href="#certifications">Certs</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-btn snd-btn" id="soundToggle" data-mode="fx" aria-label="Sound: effects on. Click to change" data-tip="Sound: effects">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="snd-w1" d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path class="snd-w2" d="M18.6 7a7 7 0 0 1 0 10"/><path class="snd-x" d="M16.5 10l4 4M20.5 10l-4 4"/></svg>
+          <span class="snd-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <button class="icon-btn" id="detectiveToggle" aria-pressed="false" aria-label="Toggle detective mode" data-tip="Detective mode (D)">
+          <svg><use href="#i-eye"/></svg>
+        </button>
+        <a href="#contact" class="btn btn-gold btn-sm nav-hire">Hire Me</a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <nav aria-label="Mobile">
+      <a href="#about"><i>01</i>About</a>
+      <a href="#experience"><i>02</i>Missions</a>
+      <a href="#projects"><i>03</i>Arsenal</a>
+      <a href="#services"><i>04</i>Services</a>
+      <a href="#skills"><i>05</i>Skills</a>
+      <a href="#terminal"><i>06</i>Batcomputer</a>
+      <a href="#certifications"><i>07</i>Certs</a>
+      <a href="#contact"><i>08</i>Contact</a>
+    </nav>
+    <div class="mm-foot">
+      <a href="mailto:manpreet.singh@example.com">manpreet.singh@example.com</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="home">
+      <canvas id="gotham" aria-hidden="true"></canvas>
+      <div class="hero-vignette" aria-hidden="true"></div>
+      <div class="hero-scan" aria-hidden="true"></div>
+
+      <div class="container hero-inner">
+        <div class="hero-content">
+          <div class="hero-meta hero-anim" style="--d:.1s">
+            <span class="live-dot"></span>
+            <span>SIGNAL ACTIVE</span><span class="sep">/</span><span>GOTHAM SECTOR · INDIA</span>
+          </div>
+          <h1 class="hero-title" aria-label="Manpreet Singh">
+            <span class="glitch split" data-text="MANPREET">MANPREET</span>
+            <span class="glitch split outline" data-text="SINGH">SINGH</span>
+          </h1>
+          <div class="hero-role hero-anim" style="--d:.9s">
+            <span class="prompt">root@batcave:~$</span>
+            <span class="typed" id="typed" aria-live="polite">Application Security Specialist</span><span class="caret" aria-hidden="true"></span>
+          </div>
+          <p class="hero-lede hero-anim" style="--d:1.05s">
+            I break into web apps, networks and source code the way real attackers would — then hand you the playbook to shut them out.
+          </p>
+          <div class="hero-cta hero-anim" style="--d:1.2s">
+            <a class="btn btn-gold magnetic" href="#services"><span>Explore Services</span><svg><use href="#i-arrow"/></svg></a>
+            <a class="btn btn-ghost magnetic" href="#contact"><svg class="btn-bat"><use href="#bat"/></svg><span>Light the Signal</span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="sky-hint" aria-hidden="true"><span class="sky-ring"></span><b>⚡ <span class="sky-verb">Click</span> the sky</b></div>
+      <span class="clue" style="top:22%;right:6%">CLUE #1 — the signal follows your cursor</span>
+
+      <div class="hero-strip hero-anim" style="--d:1.4s">
+        <div class="container strip-inner">
+          <div class="strip-item"><b>CEH</b><span>EC-Council</span></div>
+          <div class="strip-item"><b>CCSP</b><span>ISC2</span></div>
+          <div class="strip-item"><b>Red Ethix</b><span>Freelance AppSec</span></div>
+          <div class="strip-item"><b>SAST</b><span>Fortify · SonarQube</span></div>
+        </div>
+      </div>
+
+      <a href="#about" class="scroll-cue" aria-label="Scroll to about"><span>SCROLL</span><i></i></a>
+    </section>
+
+    <!-- ============ EMBLEM (interactive particles) ============ -->
+    <section class="emblem-sec" id="emblem" aria-label="Interactive emblem">
+      <canvas id="emblemCanvas" aria-hidden="true"></canvas>
+      <div class="container emblem-top">
+        <p class="sec-tag"><span class="sec-idx">00</span>// Signature Move</p>
+        <p class="emblem-line">Every system has a weakness.<br /><em>I find it first.</em></p>
+      </div>
+      <div class="container emblem-bottom">
+        <div class="emblem-label">
+          <span class="emblem-kicker" id="emblemKicker">FORM 01 / 06</span>
+          <span class="emblem-word" id="emblemWord">VIGILANCE</span>
+        </div>
+        <div class="emblem-nav" id="emblemNav" role="tablist" aria-label="Emblem forms"></div>
+        <p class="emblem-hint"><span class="hint-desk">Move to disturb · Click to transform</span><span class="hint-touch">Tilt or drag to disturb · Tap to transform</span></p>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="section" id="about">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="01">
+          <p class="sec-tag"><span class="sec-idx">01</span>// Case File #MS-0001</p>
+          <h2 class="scramble">The Knight Behind <em>the Keyboard</em></h2>
+          <span class="sec-line"></span>
+        </header>
+
+        <div class="about-grid">
+          <aside class="dossier card-hud reveal">
+            <div class="dossier-top">
+              <div class="emblem">
+                <svg><use href="#bat"/></svg>
+                <span class="emblem-ring"></span>
+              </div>
+              <div>
+                <p class="dossier-name">Manpreet Singh</p>
+                <p class="dossier-role">Application Security · VAPT</p>
+              </div>
+            </div>
+            <dl class="dossier-fields">
+              <div><dt>Alias</dt><dd>The Night Auditor</dd></div>
+              <div><dt>Clearance</dt><dd>CEH · CCSP</dd></div>
+              <div><dt>Cred ID</dt><dd>ECC15162443496</dd></div>
+              <div><dt>Specialty</dt><dd>Web · Network · Source Code</dd></div>
+              <div><dt>Field</dt><dd>Red Ethix (Freelance)</dd></div>
+              <div><dt>Status</dt><dd class="ok"><span class="live-dot"></span>Open to engagements &amp; roles</dd></div>
+            </dl>
+            <div class="dossier-barcode" aria-hidden="true"></div>
+            <span class="stamp" aria-hidden="true">CLASSIFIED</span>
+          </aside>
+
+          <div class="about-copy">
+            <p class="lead reveal">Application-security professional with hands-on experience in web application penetration testing and source-code review — exploiting <mark>SQLi, XSS, IDOR, SSRF and auth flaws</mark> with industry-standard tools.</p>
+            <p class="reveal">Freelancing with <mark>Red Ethix</mark> across AppSec engagements: manual pentests, <mark>SAST source-code scanning</mark>, vulnerability assessment and clear, developer-ready PoC reports. Comfortable across Burp Suite, Nessus, Fortify, SonarQube, Nmap, Nikto, Ghauri and Metasploit.</p>
+            <p class="reveal">Certified as a <mark>CEH</mark> and <mark>CCSP</mark> — attacker methodology on one side, cloud-security discipline on the other. I like work that ends with something measurably safer.</p>
+            <blockquote class="quote reveal">
+              <svg aria-hidden="true"><use href="#bat"/></svg>
+              “Why do systems fall? So we can learn to harden them.”
+            </blockquote>
+            <div class="stats reveal" data-stagger>
+              <div class="stat"><b class="count" data-count="2">0</b><span>Industry certifications</span></div>
+              <div class="stat"><b class="count" data-count="10" data-suffix="+">0</b><span>Security tools mastered</span></div>
+              <div class="stat"><b class="count" data-count="12">0</b><span>Services offered</span></div>
+              <div class="stat"><b class="count" data-count="100" data-suffix="%">0</b><span>Findings with PoC</span></div>
+            </div>
+          </div>
+        </div>
+        <span class="clue" style="bottom:40px;right:24px">CLUE #2 — subject replies fastest by email</span>
+      </div>
+    </section>
+
+    <!-- ============ EXPERIENCE ============ -->
+    <section class="section" id="experience">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="02">
+          <p class="sec-tag"><span class="sec-idx">02</span>// Mission Log</p>
+          <h2 class="scramble">Field <em>Operations</em></h2>
+          <span class="sec-line"></span>
+        </header>
+
+        <div class="timeline" id="timeline">
+          <div class="tl-rail" aria-hidden="true"><i class="tl-progress"></i></div>
+
+          <article class="tl-item reveal">
+            <div class="tl-node" aria-hidden="true"><span></span></div>
+            <div class="tl-card card-hud">
+              <div class="tl-meta">
+                <span class="chip chip-gold">Freelance</span>
+                <span class="tl-code">OP-01 · APPSEC</span>
+              </div>
+              <h3>Application Security Consultant</h3>
+              <p class="tl-org">Red Ethix <span>· Freelancer</span></p>
+              <ul class="tl-list">
+                <li>Performed web application and network penetration tests, identifying and proving SQLi, XSS, IDOR, SSRF and authentication/authorization flaws.</li>
+                <li>Ran source-code security scanning with Fortify and SonarQube — triaging results, removing false positives and giving developers fix-ready guidance.</li>
+                <li>Vulnerability assessment with Nessus and Nmap, web-server auditing with Nikto, SQL injection exploitation with Ghauri and Metasploit.</li>
+                <li>Delivered PoC-backed reports with business impact, remediation steps and retest validation.</li>
+              </ul>
+              <div class="chips">
+                <span class="chip">Burp Suite</span><span class="chip">Nessus</span><span class="chip">Fortify</span><span class="chip">SonarQube</span><span class="chip">Nmap</span><span class="chip">Nikto</span><span class="chip">Ghauri</span><span class="chip">Metasploit</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROJECTS ============ -->
+    <section class="section" id="projects">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="03">
+          <p class="sec-tag"><span class="sec-idx">03</span>// The Arsenal</p>
+          <h2 class="scramble">Gadgets <em>I Wield</em></h2>
+          <span class="sec-line"></span>
+        </header>
+
+        <div class="projects">
+          <article class="project project-featured reveal">
+            <div class="project-inner tilt">
+              <div class="project-visual">
+                <canvas class="mini" data-mini="graph" aria-hidden="true"></canvas>
+                <div class="pv-hud"><span><i class="live-dot"></i>ATTACK-SURFACE GRAPH · LIVE</span></div>
+              </div>
+              <div class="project-body">
+                <div class="project-top"><span class="chip chip-gold">Featured · AppSec</span><span class="proj-num">01</span></div>
+                <h3 class="project-title">Web App Pentesting</h3>
+                <p class="project-desc">Manual-first testing against the OWASP Top 10 and beyond with Burp Suite — the logic and authorization flaws scanners miss, every one proven with a PoC.</p>
+                <div class="chips"><span class="chip">Burp Suite</span><span class="chip">OWASP Top 10</span><span class="chip">SQLi</span><span class="chip">XSS</span><span class="chip">IDOR</span></div>
+                <div class="project-links">
+                  <a class="btn btn-ghost btn-sm" href="#contact">Request this<svg><use href="#i-arrow"/></svg></a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project  reveal">
+            <div class="project-inner tilt">
+              <div class="project-visual">
+                <canvas class="mini" data-mini="cipher" aria-hidden="true"></canvas>
+                <div class="pv-hud"><span><i class="live-dot"></i>SAST · SOURCE CODE SCANNING</span></div>
+              </div>
+              <div class="project-body">
+                <div class="project-top"><span class="chip chip-gold">Code Review</span><span class="proj-num">02</span></div>
+                <h3 class="project-title">Source Code Review</h3>
+                <p class="project-desc">Static analysis with Fortify and SonarQube, triaged by hand so developers get real findings and secure-coding fixes — not noise.</p>
+                <div class="chips"><span class="chip">Fortify</span><span class="chip">SonarQube</span><span class="chip">SAST</span></div>
+                <div class="project-links">
+                  <a class="btn btn-ghost btn-sm" href="#contact">Request this<svg><use href="#i-arrow"/></svg></a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project  reveal">
+            <div class="project-inner tilt">
+              <div class="project-visual">
+                <canvas class="mini" data-mini="pixels" aria-hidden="true"></canvas>
+                <div class="pv-hud"><span><i class="live-dot"></i>EXPLOIT CHAIN · VALIDATING</span></div>
+              </div>
+              <div class="project-body">
+                <div class="project-top"><span class="chip chip-gold">Exploitation</span><span class="proj-num">03</span></div>
+                <h3 class="project-title">Exploit &amp; Validate</h3>
+                <p class="project-desc">Controlled exploitation to prove impact: SQL injection with Ghauri and chained attacks via Metasploit.</p>
+                <div class="chips"><span class="chip">Ghauri</span><span class="chip">Metasploit</span><span class="chip">SQLi</span></div>
+                <div class="project-links">
+                  <a class="btn btn-ghost btn-sm" href="#contact">Request this<svg><use href="#i-arrow"/></svg></a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project project-sm reveal">
+            <div class="project-inner tilt">
+              <div class="project-visual">
+                <canvas class="mini" data-mini="rooms" aria-hidden="true"></canvas>
+                <div class="pv-hud"><span><i class="live-dot"></i>SCAN · ENUMERATE · ASSESS</span></div>
+              </div>
+              <div class="project-body">
+                <div class="project-top"><span class="chip chip-gold">Assessment</span><span class="proj-num">04</span></div>
+                <h3 class="project-title">Vulnerability Assessment</h3>
+                <p class="project-desc">Nessus and Nmap driven discovery across hosts and services, with false positives removed and a CVSS-prioritised risk register.</p>
+                <div class="chips"><span class="chip">Nessus</span><span class="chip">Nmap</span><span class="chip">CVSS</span></div>
+                <div class="project-links">
+                  <a class="btn btn-ghost btn-sm" href="#contact">Request this<svg><use href="#i-arrow"/></svg></a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project project-sm reveal">
+            <div class="project-inner tilt">
+              <div class="project-visual">
+                <canvas class="mini" data-mini="textenc" aria-hidden="true"></canvas>
+                <div class="pv-hud"><span><i class="live-dot"></i></span></div>
+              </div>
+              <div class="project-body">
+                <div class="project-top"><span class="chip chip-gold">Web Server</span><span class="proj-num">05</span></div>
+                <h3 class="project-title">Web Server Auditing</h3>
+                <p class="project-desc">Nikto and manual probing for misconfigurations, exposed files and outdated components.</p>
+                <div class="chips"><span class="chip">Nikto</span><span class="chip">Misconfiguration</span></div>
+                <div class="project-links">
+                  <a class="btn btn-ghost btn-sm" href="#contact">Request this<svg><use href="#i-arrow"/></svg></a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project project-sm reveal">
+            <div class="project-inner tilt">
+              <div class="project-visual">
+                <canvas class="mini" data-mini="imgenc" aria-hidden="true"></canvas>
+                <div class="pv-hud"><span><i class="live-dot"></i>REPORT · RETEST · CLOSE</span></div>
+              </div>
+              <div class="project-body">
+                <div class="project-top"><span class="chip chip-gold">Reporting</span><span class="proj-num">06</span></div>
+                <h3 class="project-title">PoC Reporting &amp; Retest</h3>
+                <p class="project-desc">Reports developers can act on and leadership can read — then I attack again to verify every fix.</p>
+                <div class="chips"><span class="chip">PoC</span><span class="chip">Remediation</span><span class="chip">Retesting</span></div>
+                <div class="project-links">
+                  <a class="btn btn-ghost btn-sm" href="#contact">Request this<svg><use href="#i-arrow"/></svg></a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SERVICES ============ -->
+    <section class="section" id="services">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="04">
+          <p class="sec-tag"><span class="sec-idx">04</span>// Services</p>
+          <h2 class="scramble">What I Do <em>After Dark</em></h2>
+          <span class="sec-line"></span>
+          <p class="sec-sub">Offensive security engagements, end to end — from the first recon packet to a verified fix.</p>
+        </header>
+
+        <div class="svc-filters reveal" role="tablist" aria-label="Filter services">
+          <button class="filter-btn active" data-sfx="filter" data-filter="all" role="tab" aria-selected="true">All <i>12</i></button>
+          <button class="filter-btn" data-sfx="filter" data-filter="offensive" role="tab" aria-selected="false">Offensive <i>4</i></button>
+          <button class="filter-btn" data-sfx="filter" data-filter="code" role="tab" aria-selected="false">Code &amp; Cloud <i>4</i></button>
+          <button class="filter-btn" data-sfx="filter" data-filter="intel" role="tab" aria-selected="false">Reporting &amp; Intel <i>4</i></button>
+        </div>
+
+        <div class="svc-grid" id="svcGrid">
+          <article class="svc reveal" data-cat="offensive" data-service="Web Application Penetration Testing (WAPT)" data-short="Web App Pentest" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-web"/></svg></span><span class="svc-code">SVC-01</span></div>
+            <h3>Web Application Penetration Testing</h3><span class="svc-abbr">WAPT</span>
+            <p>Manual-first testing of your web apps against the OWASP Top 10 and beyond — the flaws scanners miss.</p>
+            <ul class="svc-list"><li>SQLi, XSS, IDOR, SSRF &amp; CSRF exploitation</li><li>AuthN, AuthZ &amp; session testing</li><li>Business-logic abuse cases</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="offensive" data-service="Vulnerability Assessment (VA)" data-short="Vulnerability Assessment" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-radar"/></svg></span><span class="svc-code">SVC-02</span></div>
+            <h3>Vulnerability Assessment</h3><span class="svc-abbr">VA</span>
+            <p>Systematic discovery and risk-rating of weaknesses across apps, hosts and services — every finding manually validated.</p>
+            <ul class="svc-list"><li>Nessus &amp; Nmap-driven discovery</li><li>False-positive elimination</li><li>CVSS-prioritised risk register</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="offensive" data-service="Network Penetration Testing" data-short="Network Pentest" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-network"/></svg></span><span class="svc-code">SVC-03</span></div>
+            <h3>Network Penetration Testing</h3><span class="svc-abbr">NPT</span>
+            <p>Internal and external network assessments that find the open door before someone else walks through it.</p>
+            <ul class="svc-list"><li>Port, service &amp; protocol enumeration</li><li>Misconfiguration &amp; weak-crypto checks</li><li>Exploitation &amp; privilege escalation</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="offensive" data-service="API Security Testing" data-short="API Security" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-api"/></svg></span><span class="svc-code">SVC-04</span></div>
+            <h3>API Security Testing</h3><span class="svc-abbr">API</span>
+            <p>REST and GraphQL endpoints tested for the authorization and data-exposure bugs APIs are notorious for.</p>
+            <ul class="svc-list"><li>Broken object-level authorization</li><li>Token, rate-limit &amp; mass-assignment flaws</li><li>OWASP API Top 10 coverage</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="code" data-service="Source Code Review (SAST)" data-short="Source Code Review" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-chip"/></svg></span><span class="svc-code">SVC-05</span></div>
+            <h3>Source Code Review</h3><span class="svc-abbr">SAST</span>
+            <p>Static analysis with Fortify and SonarQube, triaged by hand so you get real findings, not noise.</p>
+            <ul class="svc-list"><li>Fortify &amp; SonarQube scanning</li><li>False-positive elimination</li><li>Secure-coding fix guidance</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="code" data-service="Exploitation &amp; Post-Exploitation" data-short="Exploitation" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-unlock"/></svg></span><span class="svc-code">SVC-06</span></div>
+            <h3>Exploitation</h3><span class="svc-abbr">EXPLOIT</span>
+            <p>Controlled exploitation that proves real impact and shows how far an attacker could go.</p>
+            <ul class="svc-list"><li>Metasploit &amp; Ghauri</li><li>Privilege escalation &amp; pivoting</li><li>Reproducible PoCs</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="code" data-service="Cloud Security Assessment" data-short="Cloud Security Review" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-flow"/></svg></span><span class="svc-code">SVC-07</span></div>
+            <h3>Cloud Security Review</h3><span class="svc-abbr">CLOUD</span>
+            <p>CCSP-informed review of cloud architecture, identity and data protection before it ships.</p>
+            <ul class="svc-list"><li>IAM &amp; access-control review</li><li>Data security &amp; encryption</li><li>Risk-prioritised hardening plan</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="code" data-service="Secure SDLC &amp; DevSecOps" data-short="Secure SDLC" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-shield"/></svg></span><span class="svc-code">SVC-08</span></div>
+            <h3>Secure SDLC</h3><span class="svc-abbr">SDLC</span>
+            <p>Bake security into the pipeline — scanning, review gates and developer guidance.</p>
+            <ul class="svc-list"><li>SAST in CI pipelines</li><li>Secure-coding standards</li><li>Regression checks</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="intel" data-service="PoC Reporting" data-short="PoC Reporting" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-report"/></svg></span><span class="svc-code">SVC-09</span></div>
+            <h3>PoC Reporting</h3><span class="svc-abbr">REPORT</span>
+            <p>Reports developers can act on and leadership can understand — every finding backed by a working proof-of-concept.</p>
+            <ul class="svc-list"><li>Reproducible PoCs with evidence</li><li>Business impact &amp; CVSS severity</li><li>Step-by-step remediation guidance</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="intel" data-service="Remediation Retesting" data-short="Retesting" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-retest"/></svg></span><span class="svc-code">SVC-10</span></div>
+            <h3>Remediation Retesting</h3><span class="svc-abbr">RETEST</span>
+            <p>After you patch, I attack again — verifying every fix actually closes the hole.</p>
+            <ul class="svc-list"><li>Fix verification per finding</li><li>Regression &amp; bypass checks</li><li>Updated closure report</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="intel" data-service="OSINT & Threat Intelligence" data-short="OSINT & Threat Intel" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-eye"/></svg></span><span class="svc-code">SVC-11</span></div>
+            <h3>OSINT &amp; Threat Intelligence</h3><span class="svc-abbr">OSINT</span>
+            <p>Open-source intelligence on your exposure, brand abuse and scam ecosystems — the tradecraft I used at GPCSSI 2026.</p>
+            <ul class="svc-list"><li>Attack-surface &amp; footprint mapping</li><li>Phishing &amp; scam-pattern intelligence</li><li>Structured intel reporting</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+
+          <article class="svc reveal" data-cat="intel" data-service="Security Automation & Tooling" data-short="Security Automation" data-sfx="none">
+            <div class="svc-top"><span class="svc-icon"><svg><use href="#i-code"/></svg></span><span class="svc-code">SVC-12</span></div>
+            <h3>Security Automation &amp; Tooling</h3><span class="svc-abbr">AUTOMATION</span>
+            <p>Custom scripts and client-side tools that make security repeatable — from recon automation to crypto utilities.</p>
+            <ul class="svc-list"><li>Python &amp; Bash recon automation</li><li>Custom scanners &amp; parsers</li><li>Browser-based security tools</li></ul>
+            <button class="svc-cta" data-sfx="engage">Request engagement <span>→</span></button>
+          </article>
+        </div>
+
+        <div class="protocol reveal" id="protocol">
+          <p class="protocol-title"><span class="live-dot"></span>Engagement Protocol</p>
+          <ol class="steps">
+            <li class="step" style="--i:0"><span class="step-node">01</span><h4>Scope &amp; Recon</h4><p>Rules of engagement, attack-surface mapping and OSINT.</p></li>
+            <li class="step" style="--i:1"><span class="step-node">02</span><h4>Scan &amp; Enumerate</h4><p>Services, endpoints and entry points — tooling plus manual probing.</p></li>
+            <li class="step" style="--i:2"><span class="step-node">03</span><h4>Exploit &amp; Validate</h4><p>Prove real impact, chain bugs, kill false positives.</p></li>
+            <li class="step" style="--i:3"><span class="step-node">04</span><h4>Report &amp; PoC</h4><p>Clear findings with PoCs, CVSS severity and fixes.</p></li>
+            <li class="step" style="--i:4"><span class="step-node">05</span><h4>Retest &amp; Close</h4><p>Verify every fix and hand over the final sign-off.</p></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SKILLS ============ -->
+    <section class="section" id="skills">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="05">
+          <p class="sec-tag"><span class="sec-idx">05</span>// Utility Belt</p>
+          <h2 class="scramble">Technical <em>Skills</em></h2>
+          <span class="sec-line"></span>
+          <p class="sec-sub">Pick a compartment — every gadget on the belt, by category.</p>
+        </header>
+
+        <div class="belt reveal" role="tablist" aria-label="Skill categories">
+          <button class="pouch active" role="tab" aria-selected="true" data-key="appsec"><span class="pouch-snap"></span><svg><use href="#i-web"/></svg><b>AppSec</b><i>09</i></button>
+          <button class="pouch" role="tab" aria-selected="false" data-key="tools"><span class="pouch-snap"></span><svg><use href="#i-terminal"/></svg><b>Tools</b><i>08</i></button>
+          <button class="pouch" role="tab" aria-selected="false" data-key="network"><span class="pouch-snap"></span><svg><use href="#i-network"/></svg><b>Network</b><i>07</i></button>
+          <div class="buckle" aria-hidden="true"><svg><use href="#bat"/></svg></div>
+          <button class="pouch" role="tab" aria-selected="false" data-key="ai"><span class="pouch-snap"></span><svg><use href="#i-chip"/></svg><b>Code Review</b><i>08</i></button>
+          <button class="pouch" role="tab" aria-selected="false" data-key="code"><span class="pouch-snap"></span><svg><use href="#i-code"/></svg><b>Exploit</b><i>05</i></button>
+          <button class="pouch" role="tab" aria-selected="false" data-key="web"><span class="pouch-snap"></span><svg><use href="#i-api"/></svg><b>Cloud</b><i>06</i></button>
+        </div>
+
+        <div class="skill-panel card-hud reveal" role="tabpanel" id="skillPanel" aria-live="polite">
+          <div class="sp-head">
+            <p class="sp-kicker">COMPARTMENT <span id="spIndex">01</span> / 06</p>
+            <h3 id="spTitle">AppSec &amp; VAPT</h3>
+            <p id="spDesc">Finding and proving flaws in web applications — manually, the way real attackers work.</p>
+          </div>
+          <div class="sp-chips" id="spChips"></div>
+        </div>
+      </div>
+
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>Burp Suite</span><svg><use href="#bat"/></svg><span>Nmap</span><svg><use href="#bat"/></svg><span>Nessus</span><svg><use href="#bat"/></svg><span>Metasploit</span><svg><use href="#bat"/></svg><span>Fortify</span><svg><use href="#bat"/></svg><span>SonarQube</span><svg><use href="#bat"/></svg><span>Nikto</span><svg><use href="#bat"/></svg><span>Ghauri</span><svg><use href="#bat"/></svg>
+        </div>
+      </div>
+      <div class="marquee marquee-rev" aria-hidden="true">
+        <div class="marquee-track">
+          <span>SQL Injection</span><svg><use href="#bat"/></svg><span>OWASP Top 10</span><svg><use href="#bat"/></svg><span>Privilege Escalation</span><svg><use href="#bat"/></svg><span>Source Code Review</span><svg><use href="#bat"/></svg><span>Cloud Security</span><svg><use href="#bat"/></svg><span>PoC Reporting</span><svg><use href="#bat"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TERMINAL ============ -->
+    <section class="section" id="terminal">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="06">
+          <p class="sec-tag"><span class="sec-idx">06</span>// Batcomputer</p>
+          <h2 class="scramble">Interrogate <em>the System</em></h2>
+          <span class="sec-line"></span>
+          <p class="sec-sub">A working terminal. Type <code>help</code>, or tap a command below.</p>
+        </header>
+
+        <div class="term reveal" id="term">
+          <div class="term-bar">
+            <span class="term-dots"><i></i><i></i><i></i></span>
+            <span class="term-title">guest@batcomputer: ~ — zsh — 80×24</span>
+            <span class="term-status"><span class="live-dot"></span>SECURE</span>
+          </div>
+          <div class="term-body" id="termBody" tabindex="0">
+            <div id="termOut" aria-live="polite"></div>
+            <form class="term-input" id="termForm" autocomplete="off">
+              <label for="termIn" class="term-prompt">guest@batcomputer:~$</label>
+              <input id="termIn" type="text" spellcheck="false" autocapitalize="off" aria-label="Terminal command" />
+            </form>
+          </div>
+        </div>
+        <div class="term-chips reveal" id="termChips">
+          <button data-cmd="whoami">whoami</button>
+          <button data-cmd="services">services</button>
+          <button data-cmd="projects">projects</button>
+          <button data-cmd="skills">skills</button>
+          <button data-cmd="nmap manpreet">nmap manpreet</button>
+          <button data-cmd="hack">hack</button>
+          <button data-cmd="contact">contact</button>
+          <button data-cmd="batsignal">batsignal</button>
+        </div>
+        <span class="clue" style="bottom:30px;left:24px">CLUE #4 — try: sudo hire manpreet</span>
+      </div>
+    </section>
+
+    <!-- ============ CERTIFICATIONS ============ -->
+    <section class="section" id="certifications">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="07">
+          <p class="sec-tag"><span class="sec-idx">07</span>// Clearance Levels</p>
+          <h2 class="scramble">Certifi<em>cations</em></h2>
+          <span class="sec-line"></span>
+        </header>
+
+        <div class="cert-grid">
+          <article class="cert reveal">
+            <div class="cert-inner tilt">
+              <div class="cert-seal" aria-hidden="true">
+                <svg viewBox="0 0 120 120"><defs><path id="sealPath1" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs><text><textPath href="#sealPath1">CERTIFIED • ETHICAL • HACKER • EC-COUNCIL • </textPath></text></svg>
+                <svg class="seal-bat"><use href="#bat"/></svg>
+              </div>
+              <p class="cert-issuer">EC-Council</p>
+              <h3 class="cert-code">C<em>EH</em></h3>
+              <p class="cert-name">Certified Ethical Hacker</p>
+              <p class="cert-desc">The attacker's methodology end to end — reconnaissance, scanning, exploitation and post-exploitation. Credential ID: <b>ECC15162443496</b></p>
+              <a class="btn btn-ghost btn-sm" href="https://aspen.eccouncil.org/verify" target="_blank" rel="noopener"><svg><use href="#i-award"/></svg>Verify on ASPEN</a>
+            </div>
+          </article>
+
+          <article class="cert reveal">
+            <div class="cert-inner tilt">
+              <div class="cert-seal" aria-hidden="true">
+                <svg viewBox="0 0 120 120"><defs><path id="sealPath2" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs><text><textPath href="#sealPath2">ISC2 • CERTIFIED • CLOUD • SECURITY • </textPath></text></svg>
+                <svg class="seal-bat"><use href="#bat"/></svg>
+              </div>
+              <p class="cert-issuer">ISC2</p>
+              <h3 class="cert-code">CC<em>SP</em></h3>
+              <p class="cert-name">Certified Cloud Security Professional</p>
+              <p class="cert-desc">Cloud security architecture, design, data protection, operations and risk — the discipline behind securing modern cloud workloads.</p>
+              <a class="btn btn-ghost btn-sm" href="https://www.credly.com/badges/99ab0d0d-715c-4bad-b46f-fafd9a9be7e1/" target="_blank" rel="noopener"><svg><use href="#i-award"/></svg>Verify on Credly</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section" id="contact">
+      <div class="container">
+        <header class="sec-head reveal" data-idx="09">
+          <p class="sec-tag"><span class="sec-idx">09</span>// Summon</p>
+          <h2 class="scramble">Light <em>the Signal</em></h2>
+          <span class="sec-line"></span>
+          <p class="sec-sub">Need a pentest, a source-code review, or a retest before launch? Send the signal — I respond fast.</p>
+        </header>
+
+        <div class="contact-grid">
+          <div class="contact-left reveal">
+            <button class="signal-btn" id="signalBtn" aria-label="Light the signal and start a message">
+              <span class="sb-rings" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="sb-disc"><svg><use href="#bat"/></svg></span>
+              <span class="sb-label">Press to light the signal</span>
+            </button>
+
+            <ul class="contact-list">
+              <li>
+                <a href="mailto:manpreet.singh@example.com" class="c-row">
+                  <span class="c-icon"><svg><use href="#i-mail"/></svg></span>
+                  <span class="c-text"><small>Email</small><b>manpreet.singh@example.com</b></span>
+                </a>
+                <button class="copy-btn" data-copy="manpreet.singh@example.com" aria-label="Copy email address"><svg><use href="#i-copy"/></svg></button>
+              </li>
+              
+            </ul>
+
+            <div class="socials">
+              <a href="https://aspen.eccouncil.org/verify" target="_blank" rel="noopener" class="social"><svg><use href="#i-award"/></svg>CEH Verify</a>
+              <a href="https://www.credly.com/badges/99ab0d0d-715c-4bad-b46f-fafd9a9be7e1/" target="_blank" rel="noopener" class="social"><svg><use href="#i-award"/></svg>CCSP Badge</a>
+            </div>
+          </div>
+
+          <form class="contact-form card-hud reveal" id="contactForm" novalidate>
+            <div class="cf-head">
+              <p><span class="live-dot"></span>SECURE CHANNEL</p>
+              <span>CH-09 · OPEN</span>
+            </div>
+            <div class="cf-row">
+              <div class="field">
+                <label for="f-name">Your name</label>
+                <input id="f-name" name="name" type="text" required autocomplete="name" placeholder="Commissioner Gordon" />
+              </div>
+              <div class="field">
+                <label for="f-email">Your email</label>
+                <input id="f-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
+              </div>
+            </div>
+            <fieldset class="field svc-field">
+              <legend>Services needed <span class="svc-count" id="svcCount">— tap all that apply</span></legend>
+              <div class="svc-pills" id="svcPills"></div>
+            </fieldset>
+            <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="field">
+              <label for="f-msg">Message</label>
+              <textarea id="f-msg" name="message" rows="5" required placeholder="Scope, timeline, target (web app / network / source code)…"></textarea>
+            </div>
+            <div class="cf-actions">
+              <button type="submit" class="btn btn-gold magnetic" id="cfSend" data-sfx="none"><svg><use href="#i-send"/></svg><span class="cf-send-label">Send the Signal</span><i class="spinner" aria-hidden="true"></i></button>
+            </div>
+            <p class="cf-note" id="cfNote">Opens your email app with the message ready — nothing is stored on this site.</p>
+
+            <div class="cf-choose" id="cfChoose" role="group" aria-label="Choose how to send your message">
+              <p class="cc-kicker"><span class="live-dot"></span>SIGNAL READY · PICK A CHANNEL</p>
+              <h3>Send it with…</h3>
+              <div class="cc-grid">
+                <a class="cc-opt" id="ccGmail" href="#" target="_blank" rel="noopener" data-sfx="engage"><svg><use href="#i-mail"/></svg><span><b>Gmail</b><small>opens in your browser</small></span></a>
+                <a class="cc-opt" id="ccOutlook" href="#" target="_blank" rel="noopener" data-sfx="engage"><svg><use href="#i-mail"/></svg><span><b>Outlook.com</b><small>opens in your browser</small></span></a>
+                <a class="cc-opt" id="ccMailApp" href="#" data-sfx="engage"><svg><use href="#i-send"/></svg><span><b>Mail app</b><small>your default email program</small></span></a>
+                <button type="button" class="cc-opt" id="ccCopy" data-sfx="engage"><svg><use href="#i-copy"/></svg><span><b>Copy message</b><small>paste it into any email</small></span></button>
+              </div>
+              <p class="cc-direct">Your message is pre-filled and addressed to <b>manpreet.singh@example.com</b> — just hit send.</p>
+              <button type="button" class="cc-back" id="ccBack">← Back to the form</button>
+            </div>
+
+            <div class="cf-success" id="cfSuccess" role="status" aria-live="polite">
+              <div class="cs-disc"><svg><use href="#bat"/></svg></div>
+              <h3>Signal received.</h3>
+              <p id="cfSuccessText">Your message is in Manpreet's inbox.</p>
+              <button type="button" class="btn btn-ghost btn-sm" id="cfAgain">Send another</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="footer-mega" aria-hidden="true">MANPREET SINGH</div>
+    <div class="container footer-inner">
+      <div class="f-brand">
+        <button class="f-bat" id="footerBat" aria-label="Release the bats"><svg><use href="#bat"/></svg></button>
+        <div>
+          <p class="f-name">Manpreet Singh</p>
+          <p class="f-role">AppSec · VAPT · Source Code Review</p>
+        </div>
+      </div>
+      <nav class="f-links" aria-label="Footer">
+        <a href="#about">About</a><a href="#projects">Arsenal</a><a href="#services">Services</a><a href="#contact">Contact</a>
+      </nav>
+      <div class="f-social">
+        <a href="https://aspen.eccouncil.org/verify" target="_blank" rel="noopener" aria-label="CEH verify"><svg><use href="#i-award"/></svg></a>
+        <a href="https://www.credly.com/badges/99ab0d0d-715c-4bad-b46f-fafd9a9be7e1/" target="_blank" rel="noopener" aria-label="CCSP badge"><svg><use href="#i-shield"/></svg></a>
+        <a href="mailto:manpreet.singh@example.com" aria-label="Email"><svg><use href="#i-mail"/></svg></a>
+      </div>
+    </div>
+    <div class="container f-bottom">
+      <span>© <span id="year">2026</span> Manpreet Singh. Built in the shadows of Gotham.</span>
+      <span class="f-hint">Psst — type <kbd>batman</kbd> anywhere.</span>
+    </div>
+    <span class="clue" style="bottom:70px;right:24px">CLUE #5 — type “batman” anywhere</span>
+  </footer>
+
+  <button class="to-top" id="toTop" aria-label="Back to top">
+    <svg class="tt-ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/><circle class="tt-prog" cx="24" cy="24" r="21"/></svg>
+    <svg class="tt-bat" aria-hidden="true"><use href="#bat"/></svg>
+  </button>
+
+  <div class="brief-dock" id="briefDock" aria-live="polite">
+    <span class="bd-count" id="bdCount">0</span>
+    <div class="bd-text"><small>MISSION BRIEF</small><p id="bdList"></p></div>
+    <button type="button" class="bd-clear" id="bdClear" data-sfx="none">Clear</button>
+    <button type="button" class="btn btn-gold btn-sm" id="bdGo" data-sfx="engage"><span>Request engagement</span><svg><use href="#i-arrow"/></svg></button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+  <script src="js/main.js" defer></script>
+</body>
+</html>
