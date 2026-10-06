@@ -1,5 +1,5 @@
 /* =========================================================
-   MANPREET SINGH — Dark Knight Portfolio · interactions
+   MANPREET — Dark Knight Portfolio · interactions
    ========================================================= */
 (() => {
   'use strict';
@@ -11,10 +11,10 @@
      email as Reply-To. Left empty, the form falls back to opening the visitor's
      own mail app, pre-addressed to `inbox`.
      The key is designed to be public — it can only send mail to your own address.
-     ---------------------------------------------------------
+     --------------------------------------------------------- */
   const CONFIG = {
     web3formsKey: '',
-    inbox: 'manpreet.singh@example.com',
+    inbox: 'm.infosec6@gmail.com',
   };
 
   const $ = (s, c = document) => c.querySelector(s);
@@ -146,7 +146,7 @@
       rain.gain.cancelScheduledValues(ac.currentTime);
       rain.gain.setTargetAtTime(mode === 'all' ? 0.022 : 0, ac.currentTime, 0.8);
     }
-    function tone(freq, { type = 'sine', dur = 0.12, vol = 0.05, delay = 0, to = null, attack = 0.004 } = {}) {
+    function tone(freq, { type = 'sine', dur = 0.12, vol = 0.14, delay = 0, to = null, attack = 0.004 } = {}) {
       const t = ac.currentTime + delay;
       const o = ac.createOscillator();
       const g = ac.createGain();
@@ -183,7 +183,7 @@
     }
     // struck metal: inharmonic partials (free-bar mode ratios) + a bright noise transient + optional low "body"
     // `shimmer` adds a slightly detuned twin to the fundamental so it beats slowly, like a singing bowl
-    function metal(f0, { decay = 0.12, vol = 0.05, delay = 0, ratios = [1, 2.76, 5.4], amps = [1, 0.55, 0.3], noise = 0.6, body = 0, attack = 0.0015, shimmer = 0 } = {}) {
+    function metal(f0, { decay = 0.12, vol = 0.14, delay = 0, ratios = [1, 2.76, 5.4], amps = [1, 0.55, 0.3], noise = 0.6, body = 0, attack = 0.0015, shimmer = 0 } = {}) {
       const t = ac.currentTime + delay;
       const partial = (freq, v, d) => {
         const o = ac.createOscillator();
@@ -204,7 +204,7 @@
         if (shimmer && i === 0) partial(f0 + shimmer, vol * amps[i] * 0.7, d);
       });
       if (noise) burst({ type: 'bandpass', f0: Math.min(9000, f0 * 3), f1: Math.min(9000, f0 * 2.5), q: 1.4, dur: 0.03, vol: vol * noise, attack: 0.001, delay });
-      if (body) tone(160, { dur: 0.05, vol: body, to: 80, delay });
+      if (body) tone(160, { dur: 0.05, vol: body * 1.2, to: 80, delay });
     }
     // singing-bowl chime: soft mallet, bowl partial ratios, long gentle ring
     const bowl = (f0, { vol = 0.03, decay = 1.6, delay = 0, shimmer = 1.2 } = {}) =>
@@ -269,53 +269,53 @@
     }
     const SFX = {
       // generic UI click — a crisp metallic tick
-      tick: (f = 1700) => metal(f, { decay: 0.09, vol: 0.06, noise: 0.5, body: 0.035 }),
+      tick: (f = 1700) => metal(f, { decay: 0.09, vol: 0.16, noise: 0.5, body: 0.035 }),
       // barely-there hover
-      hover: () => metal(3400, { decay: 0.04, vol: 0.012, ratios: [1, 2.76], amps: [1, 0.4], noise: 0.3 }),
+      hover: () => metal(3400, { decay: 0.04, vol: 0.05, ratios: [1, 2.76], amps: [1, 0.4], noise: 0.3 }),
       // category switch (Offensive / AI Security / Reporting & Intel): click, servo, latch
       filter: () => {
-        metal(950, { decay: 0.07, vol: 0.06, noise: 0.7, body: 0.04 });
+        metal(950, { decay: 0.07, vol: 0.16, noise: 0.7, body: 0.04 });
         servo(0.02, 0.13);
-        metal(2300, { decay: 0.08, vol: 0.045, delay: 0.13, noise: 0.4 });
+        metal(2300, { decay: 0.08, vol: 0.14, delay: 0.13, noise: 0.4 });
       },
       // service added / removed from the mission brief: a two-stage metal latch
       select: () => {
-        metal(1400, { decay: 0.07, vol: 0.06, noise: 0.6, body: 0.03 });
-        metal(2100, { decay: 0.28, vol: 0.05, delay: 0.055, ratios: [1, 2.76, 5.4, 8.93], amps: [1, 0.5, 0.28, 0.12] });
+        metal(1400, { decay: 0.07, vol: 0.16, noise: 0.6, body: 0.03 });
+        metal(2100, { decay: 0.28, vol: 0.14, delay: 0.055, ratios: [1, 2.76, 5.4, 8.93], amps: [1, 0.5, 0.28, 0.12] });
       },
       deselect: () => {
-        metal(2000, { decay: 0.07, vol: 0.05, noise: 0.5 });
-        metal(1250, { decay: 0.2, vol: 0.045, delay: 0.055, body: 0.03 });
+        metal(2000, { decay: 0.07, vol: 0.14, noise: 0.5 });
+        metal(1250, { decay: 0.2, vol: 0.14, delay: 0.055, body: 0.03 });
       },
       // "Request engagement": a heavy metal lock-in — impact, sub drop, ringing steel, blade shing
       engage: () => {
         burst({ type: 'bandpass', f0: 1600, f1: 380, q: 0.9, dur: 0.22, vol: 0.22, attack: 0.002 });
         tone(72, { dur: 0.38, vol: 0.14, to: 38 });
-        metal(520, { decay: 1.3, vol: 0.05, delay: 0.01, ratios: [1, 2.76, 5.4, 8.93, 13.34], amps: [1, 0.7, 0.45, 0.25, 0.12], noise: 0.4 });
-        burst({ type: 'highpass', f0: 3000, f1: 9000, q: 0.7, dur: 0.35, vol: 0.05, attack: 0.02, delay: 0.03 });
+        metal(520, { decay: 1.3, vol: 0.14, delay: 0.01, ratios: [1, 2.76, 5.4, 8.93, 13.34], amps: [1, 0.7, 0.45, 0.25, 0.12], noise: 0.4 });
+        burst({ type: 'highpass', f0: 3000, f1: 9000, q: 0.7, dur: 0.35, vol: 0.14, attack: 0.02, delay: 0.03 });
       },
       // message delivered — ringing steel pings over a low swell
       sent: () => {
-        [0, 0.3, 0.6].forEach((d, i) => metal(1318.5, { decay: 0.9, vol: 0.05 / (i + 1), delay: d, ratios: [1, 2.76, 5.4], amps: [1, 0.35, 0.15], noise: 0.2 }));
+        [0, 0.3, 0.6].forEach((d, i) => metal(1318.5, { decay: 0.9, vol: 0.14 / (i + 1), delay: d, ratios: [1, 2.76, 5.4], amps: [1, 0.35, 0.15], noise: 0.2 }));
         tone(65, { dur: 0.6, vol: 0.08, to: 45 });
       },
       error: () => {
-        metal(240, { decay: 0.12, vol: 0.06, noise: 0.8, body: 0.05 });
-        metal(200, { decay: 0.14, vol: 0.06, noise: 0.8, delay: 0.13, body: 0.05 });
+        metal(240, { decay: 0.12, vol: 0.16, noise: 0.8, body: 0.05 });
+        metal(200, { decay: 0.14, vol: 0.16, noise: 0.8, delay: 0.13, body: 0.05 });
       },
       // utility-belt pouch: metal snap
-      snap: () => metal(2600, { decay: 0.05, vol: 0.06, noise: 0.9, body: 0.04 }),
+      snap: () => metal(2600, { decay: 0.05, vol: 0.16, noise: 0.9, body: 0.04 }),
       // emblem morph / certificate flare: a breath of air and a soft bowl chime
       whoosh: () => {
-        swirl(0.75, { vol: 0.055, lo: 260, hi: 750, peak: 0.4, rates: [3, 5, 2] });
-        bowl(523.25, { vol: 0.016, decay: 1.3, delay: 0.1, shimmer: 1.4 });
+        swirl(0.75, { vol: 0.145, lo: 260, hi: 750, peak: 0.4, rates: [3, 5, 2] });
+        bowl(523.25, { vol: 0.125, decay: 1.3, delay: 0.1, shimmer: 1.4 });
       },
       // 1966 spinning-bat transition: air that swells and spins with the bat, a low bowl chime
       // as it covers the screen and a softer one a fifth above as it reveals the section
       spin: () => {
-        swirl(1.35, { vol: 0.055, lo: 220, hi: 950, peak: 0.46, rates: [2.5, 9, 2] });
-        bowl(392, { vol: 0.016, decay: 2, delay: 0.5, shimmer: 1.1 });
-        bowl(587.33, { vol: 0.009, decay: 1.7, delay: 0.68, shimmer: 1.6 });
+        swirl(1.35, { vol: 0.145, lo: 220, hi: 950, peak: 0.46, rates: [2.5, 9, 2] });
+        bowl(392, { vol: 0.125, decay: 2, delay: 0.5, shimmer: 1.1 });
+        bowl(587.33, { vol: 0.03, decay: 1.7, delay: 0.68, shimmer: 1.6 });
       },
       thunder: (power = 1) => {
         burst({ f0: 1200, f1: 80, dur: 0.4, vol: 0.4 * power, attack: 0.004 });
@@ -1489,12 +1489,12 @@
         },
       },
       {
-        word: 'MANPREET SINGH',
+        word: 'MANPREET',
         draw(g) {
           g.font = '400 270px "Bebas Neue", Impact, sans-serif';
           g.textAlign = 'center';
           g.textBaseline = 'middle';
-          g.fillText('MS', 180, 196);
+          g.fillText('M', 180, 196);
         },
       },
     ];
@@ -2353,7 +2353,7 @@
         '<span class="t-dim">  …and a few hidden ones. Try nmap, ls, sudo.</span>',
       ],
       whoami: () => [
-        '<span class="t-gold t-b">manpreet singh</span>',
+        '<span class="t-gold t-b">manpreet</span>',
         'Application security specialist · VAPT · secure source-code review',
         '<span class="t-dim">clearance:</span> CEH · CCSP   <span class="t-dim">id:</span> ECC15162443496',
         '<span class="t-dim">status:</span> <span class="t-green">● open to engagements & roles</span>',
@@ -2362,12 +2362,13 @@
         'Application-security professional focused on web & network penetration testing',
         'and secure code review — <span class="t-gold">SQLi, XSS, IDOR, SSRF, auth flaws</span> found and proven.',
         'Freelance AppSec work with Red Ethix: source-code scanning, vulnerability',
-        'assessment and clear PoC reporting. Holds <span class="t-cyan">CEH & CCSP</span>.',
+        'assessment, MCP-driven AI pentesting and CTF. Holds <span class="t-cyan">CEH & CCSP</span>.',
       ],
       experience: () => [
         '<span class="t-gold">[freelance]</span> Application Security Consultant — <span class="t-white">Red Ethix</span>',
         '   ↳ Web/network pentests, SAST source-code scanning, VA & PoC reporting',
         '   ↳ Burp Suite · Nessus · Fortify · SonarQube · Nmap · Nikto · Ghauri · Metasploit',
+        '   ↳ MCP-based AI pentesting · CTF challenges · source-code scanning',
       ],
       projects: () => [
         '<span class="t-gold">01</span> Web App Pentesting       — manual-first, OWASP Top 10 and beyond',
@@ -2390,7 +2391,7 @@
       ],
       education: () => CMDS.certs(),
       contact: () => [
-        `<span class="t-dim">email  </span> ${link('mailto:manpreet.singh@example.com', 'manpreet.singh@example.com')}`,
+        `<span class="t-dim">email  </span> ${link('mailto:m.infosec6@gmail.com', 'm.infosec6@gmail.com')}`,
       ],
       socials: () => [
         `<span class="t-dim">ceh   </span> ${link('https://aspen.eccouncil.org/verify', 'aspen.eccouncil.org/verify')}`,
@@ -2464,12 +2465,12 @@
     }
 
     [
-      `<pre class="t-ascii">${esc(`██╗   ██╗███╗   ███╗ █████╗ ███╗   ██╗ ██████╗
-██║   ██║████╗ ████║██╔══██╗████╗  ██║██╔════╝
-██║   ██║██╔████╔██║███████║██╔██╗ ██║██║  ███╗
-██║   ██║██║╚██╔╝██║██╔══██║██║╚██╗██║██║   ██║
-╚██████╔╝██║ ╚═╝ ██║██║  ██║██║ ╚████║╚██████╔╝
- ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝`)}</pre>`,
+      `<pre class="t-ascii">${esc(`███╗   ███╗ █████╗ ███╗   ██╗██╗   ██╗
+████╗ ████║██╔══██╗████╗  ██║██║   ██║
+██╔████╔██║███████║██╔██╗ ██║██║   ██║
+██║╚██╔╝██║██╔══██║██║╚██╗██║██║   ██║
+██║ ╚═╝ ██║██║  ██║██║ ╚████║╚██████╔╝
+╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝`)}</pre>`,
       '<span class="t-dim">BATCOMPUTER OS v7.86 — secure session established.</span>',
       'Welcome, guest. Type <span class="t-gold">help</span> to see what I can tell you.',
       '',
@@ -2533,7 +2534,7 @@
     const note = $('#cfNote');
     const direct = !!CONFIG.web3formsKey;
     note.textContent = direct
-      ? "Delivered straight to Manpreet's inbox — replies go to the email you enter. Nothing is stored on this site."
+      ? "Delivered straight to Manpreet Singh's inbox — replies go to the email you enter. Nothing is stored on this site."
       : isTouch
         ? 'Opens your email app (or WhatsApp) with everything pre-filled — nothing is stored on this site.'
         : 'Send via Gmail, Outlook.com, your mail app or copy-paste — everything pre-filled, nothing stored on this site.';
@@ -2549,6 +2550,8 @@
     }
     Object.values(fields).forEach((f) => f.addEventListener('input', () => f.closest('.field').classList.remove('invalid')));
 
+    // notifications go out only when a caller actually picks a mail option
+    function notifyOwner(d) { return fetch('/api/contact', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:d.name,email:d.email,message:d.message,services:d.services,subject:d.subject})}).catch(()=>{}); }
     function composeText() {
       const list = pickedList();
       const svc = list.length ? list.join(', ') : 'General enquiry';
@@ -2565,7 +2568,7 @@
       window.location.href = `mailto:${CONFIG.inbox}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
     function celebrate(email) {
-      $('#cfSuccessText').textContent = `Your message is in Manpreet's inbox. Expect a reply at ${email}.`;
+      $('#cfSuccessText').textContent = `Your message is in Manpreet Singh's inbox. Expect a reply at ${email}.`;
       form.classList.add('sent');
       flashSignal();
       fx.swarm();
@@ -2579,10 +2582,13 @@
     // Laptops often have no working default mail app (e.g. an unconfigured Outlook), so offer
     // webmail compose links, the mail app, and copy-to-clipboard instead of silently failing.
     let copyText = '';
+    let lastCompose = null;
     function deliverManually(d) {
       flashSignal();
+      lastCompose = d;
       if (isTouch) {
-        toast('Opening your mail app — hit send there');
+        toast(`Opening your mail app — your email ${d.email} will be shown in the message`);
+        notifyOwner(d);
         setTimeout(() => openMail(d.subject, d.body), 600);
         return;
       }
@@ -2600,16 +2606,19 @@
     addEventListener('keydown', (e) => { if (e.key === 'Escape' && form.classList.contains('choosing')) closeChooser(); });
     ['#ccGmail', '#ccOutlook'].forEach((s) => $(s).addEventListener('click', () => {
       $(s).classList.add('used');
-      toast('Hit send in the new tab — it lands straight in Manpreet\'s inbox');
+      if (lastCompose) notifyOwner(lastCompose);
+      toast(`Hit send in the new tab — your email: ${lastCompose?.email || 'not set'}`);
     }));
     $('#ccMailApp').addEventListener('click', () => {
       $('#ccMailApp').classList.add('used');
-      toast('If no app opened, your computer has no mail app set up — use Gmail, Outlook.com or Copy');
+      if (lastCompose) notifyOwner(lastCompose);
+      toast(`Your default mail app opening — your email: ${lastCompose?.email || 'not set'}`);
     });
     $('#ccCopy').addEventListener('click', async () => {
       const ok = await copy(copyText);
       if (ok) $('#ccCopy').classList.add('used');
-      toast(ok ? `Copied — paste it into an email to ${CONFIG.inbox}` : 'Copy was blocked by the browser — use Gmail or Outlook.com');
+      if (lastCompose) notifyOwner(lastCompose);
+      toast(ok ? `Copied — paste it into an email to ${CONFIG.inbox} · your email: ${lastCompose?.email || 'not set'}` : 'Copy was blocked by the browser — use Gmail or Outlook.com');
     });
 
     let sending = false;
@@ -2628,6 +2637,7 @@
       sound.play('engage');
       if (form.botcheck?.checked) { celebrate(d.email); return; } // honeypot tripped: pretend, send nothing
 
+      // notifyOwner(d) is fired from deliverManually click handlers below
       if (!direct) {
         deliverManually(d);
         return;
@@ -2667,7 +2677,7 @@
     });
 
     $('#waBtn')?.addEventListener('click', () => {
-      let text = 'Hi Manpreet, I found your portfolio and would like to discuss a security engagement.';
+      let text = 'Hi Manpreet Singh, I found your portfolio and would like to discuss a security engagement.';
       if (fields.msg.value.trim()) {
         const { subject, body } = composeText();
         text = `${subject}\n\n${body}`;

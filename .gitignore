@@ -3,3 +3,8 @@ _build.js
 *.mp4
 node_modules
 .vercel
+
+.vercel
+
+_*.js
+js/main.good.js
