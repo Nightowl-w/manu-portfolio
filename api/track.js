@@ -1,8 +1,8 @@
-// Vercel serverless function: report visitor to Telegram with clean format & rate-limiting
+// Vercel serverless function: Telegram visitor alert with sleek SOC / Batman theme
 const TOKEN = process.env.TG_BOT_TOKEN || '8746655192:AAE0OabqXKfBkbs_kIlIRQEKNo_kE3JB49k';
 const CHAT = process.env.TG_CHAT_ID || '8908879084';
 
-// In-memory rate limiting per IP (10 min cooldown)
+// Cooldown to avoid duplicate alerts on reload (10 min per IP)
 const recentVisitors = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
 
@@ -37,8 +37,8 @@ function parseUserAgent(ua) {
     os = 'Linux';
   }
 
-  if (/instagram/i.test(ua)) app = 'Instagram App';
-  else if (/fbav|fban/i.test(ua)) app = 'Facebook App';
+  if (/instagram/i.test(ua)) app = 'Instagram In-App';
+  else if (/fbav|fban/i.test(ua)) app = 'Facebook In-App';
   else if (/whatsapp/i.test(ua)) app = 'WhatsApp';
   else if (/telegram/i.test(ua)) app = 'Telegram';
   else if (/edg\//i.test(ua)) browser = 'Edge';
@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
   const now = Date.now();
   cleanupOldIps();
 
-  // Rate-limiting check: ignore rapid page reloads from same IP
+  // Deduplicate rapid reloads from the same IP
   if (ip && recentVisitors.has(ip)) {
     const lastSeen = recentVisitors.get(ip);
     if (now - lastSeen < COOLDOWN_MS) {
@@ -116,44 +116,43 @@ module.exports = async function handler(req, res) {
     } catch {}
   }
 
-  // Build clean message strictly omitting any NA/empty/missing values
-  const lines = ['🦇 <b>New Visitor on Your Site</b>\n'];
+  // Build sleek, professional SOC message
+  const lines = [
+    '🦇 <b>SIGNAL DETECTED // NEW VISITOR</b>\n'
+  ];
 
   if (!isInvalid(ip)) {
-    lines.push(`🌐 <b>IP:</b> <code>${ip}</code>`);
+    lines.push(`🌐 <b>IP Address:</b> <code>${ip}</code>`);
   }
   if (!isInvalid(geo)) {
     lines.push(`📍 <b>Location:</b> ${geo}`);
   }
   if (!isInvalid(isp)) {
-    lines.push(`🏢 <b>ISP:</b> ${isp}`);
+    lines.push(`🏢 <b>ISP / ASN:</b> ${isp}`);
   }
 
-  let deviceStr = os;
-  if (device) deviceStr += ` • ${device}`;
-  if (!isInvalid(deviceStr)) {
-    lines.push(`📱 <b>Device:</b> ${deviceStr}`);
-  }
-  if (!isInvalid(browser)) {
-    lines.push(`🌐 <b>Browser:</b> ${browser}`);
+  // Clean device & browser info
+  const devParts = [os, device, browser].filter((x) => !isInvalid(x));
+  if (devParts.length > 0) {
+    lines.push(`💻 <b>System:</b> ${devParts.join(' • ')}`);
   }
 
+  // Hardware specs combined
   const parsedCores = parseInt(cores, 10);
-  if (!isNaN(parsedCores) && parsedCores > 0) {
-    lines.push(`⚡ <b>CPU:</b> ${parsedCores} Cores`);
-  }
-
   const parsedRam = parseFloat(ram);
-  if (!isNaN(parsedRam) && parsedRam > 0) {
-    lines.push(`🧠 <b>RAM:</b> ${parsedRam} GB`);
+  const hwParts = [];
+  if (!isNaN(parsedCores) && parsedCores > 0) hwParts.push(`${parsedCores} Cores`);
+  if (!isNaN(parsedRam) && parsedRam > 0) hwParts.push(`${parsedRam} GB RAM`);
+  if (hwParts.length > 0) {
+    lines.push(`⚡ <b>Hardware:</b> ${hwParts.join(' • ')}`);
   }
 
-  if (!isInvalid(net)) {
-    lines.push(`📶 <b>Network:</b> ${String(net).toUpperCase()}`);
-  }
-
-  if (!isInvalid(battery) && String(battery).includes('%')) {
-    lines.push(`🔋 <b>Battery:</b> ${battery}`);
+  // Network & Battery combined if available
+  const extraParts = [];
+  if (!isInvalid(net)) extraParts.push(`📶 ${String(net).toUpperCase()}`);
+  if (!isInvalid(battery) && String(battery).includes('%')) extraParts.push(`🔋 ${battery}`);
+  if (extraParts.length > 0) {
+    lines.push(`📊 <b>Status:</b> ${extraParts.join(' • ')}`);
   }
 
   if (!isInvalid(ref)) {
@@ -162,7 +161,7 @@ module.exports = async function handler(req, res) {
     else if (/google\./i.test(ref)) cleanRef = 'Google Search';
     else if (/t\.co|twitter\.com|x\.com/i.test(ref)) cleanRef = 'Twitter / X';
     else if (/linkedin\.com/i.test(ref)) cleanRef = 'LinkedIn';
-    lines.push(`🔗 <b>Source:</b> ${cleanRef}`);
+    lines.push(`🔗 <b>Referrer:</b> ${cleanRef}`);
   }
 
   const text = lines.join('\n');
@@ -175,11 +174,11 @@ module.exports = async function handler(req, res) {
     link_preview_options: { is_disabled: true },
   };
 
-  // Only add button if approx map coordinates exist
+  // Only attach interactive map button if valid coordinates exist
   if (lat && lon) {
     payload.reply_markup = {
       inline_keyboard: [
-        [{ text: '📍 View Approx Location (Map)', url: `https://www.google.com/maps?q=${lat},${lon}` }]
+        [{ text: '🗺️ View Approx IP Location', url: `https://www.google.com/maps?q=${lat},${lon}` }]
       ]
     };
   }

