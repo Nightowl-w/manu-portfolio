@@ -782,7 +782,36 @@
 
   <script src="js/main.js" defer></script>
   <script>
-    (function(){try{fetch('/api/track?platform='+encodeURIComponent(navigator.platform||'unknown')+'&ref='+encodeURIComponent(document.referrer||'direct')+'&lang='+encodeURIComponent(navigator.language||'unknown'),{cache:'no-store'}).catch(function(){});}catch(e){}})();
+    (function(){try{
+      var lastTrack = 0;
+      try { lastTrack = parseInt(localStorage.getItem('_manu_tk') || '0', 10); } catch(e){}
+      var now = Date.now();
+      if (now - lastTrack < 600000 || sessionStorage.getItem('_manu_ss')) return;
+      try { localStorage.setItem('_manu_tk', now); sessionStorage.setItem('_manu_ss', '1'); } catch(e){}
+
+      var cores = navigator.hardwareConcurrency || '';
+      var ram = navigator.deviceMemory || '';
+      var netType = (navigator.connection && navigator.connection.effectiveType) || '';
+      var battery = '';
+      var send = function() {
+        fetch('/api/track?platform=' + encodeURIComponent(navigator.platform || '') +
+          '&ref=' + encodeURIComponent(document.referrer || 'direct') +
+          '&cores=' + encodeURIComponent(cores) +
+          '&ram=' + encodeURIComponent(ram) +
+          '&net=' + encodeURIComponent(netType) +
+          '&battery=' + encodeURIComponent(battery), { cache: 'no-store' }
+        ).catch(function(){});
+      };
+
+      if (navigator.getBattery) {
+        navigator.getBattery().then(function(b){
+          battery = Math.round(b.level * 100) + '%';
+          send();
+        }).catch(send);
+      } else {
+        send();
+      }
+    }catch(e){}})();
   </script>
 <script>
 (function(){document.addEventListener("contextmenu",function(e){e.preventDefault()},true);document.addEventListener("copy",function(e){e.preventDefault()},true);document.addEventListener("cut",function(e){e.preventDefault()},true);document.addEventListener("selectstart",function(e){e.preventDefault()},true);document.addEventListener("dragstart",function(e){e.preventDefault()},true);document.addEventListener("keydown",function(e){var k=e.key.toLowerCase();if(e.ctrlKey&&(k==="u"||k==="s"||k==="p"||k==="a"||k==="c"))e.preventDefault();if(e.ctrlKey&&e.shiftKey&&(k==="i"||k==="j"||k==="c"))e.preventDefault();if(k==="f12")e.preventDefault();});})();
