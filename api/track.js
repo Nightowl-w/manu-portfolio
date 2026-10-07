@@ -14,7 +14,7 @@ function cleanupOldIps() {
 }
 
 function parseUserAgent(ua) {
-  let os = 'Unknown OS';
+  let os = '';
   let device = '';
   let app = '';
   let browser = '';
@@ -46,28 +46,45 @@ function parseUserAgent(ua) {
   else if (/firefox\//i.test(ua)) browser = 'Firefox';
   else if (/safari\//i.test(ua) && !/chrome/i.test(ua)) browser = 'Safari';
 
-  return { os, device, browser: app || browser || 'Browser' };
+  return { os, device, browser: app || browser || '' };
 }
+
+const isInvalid = (v) => {
+  if (!v) return true;
+  const s = String(v).trim().toLowerCase();
+  return (
+    s === '' ||
+    s === 'na' ||
+    s === 'n/a' ||
+    s === 'nagb' ||
+    s === 'null' ||
+    s === 'undefined' ||
+    s === 'unknown' ||
+    s === '0' ||
+    s === '0%' ||
+    s === 'direct'
+  );
+};
 
 module.exports = async function handler(req, res) {
   const ip =
     (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
     req.headers['x-real-ip'] ||
     req.socket?.remoteAddress ||
-    'unknown';
+    '';
 
   const now = Date.now();
   cleanupOldIps();
 
   // Rate-limiting check: ignore rapid page reloads from same IP
-  if (ip !== 'unknown' && recentVisitors.has(ip)) {
+  if (ip && recentVisitors.has(ip)) {
     const lastSeen = recentVisitors.get(ip);
     if (now - lastSeen < COOLDOWN_MS) {
       res.setHeader('Content-Type', 'application/json');
       return res.status(200).json({ ok: true, skipped: 'cooldown_active' });
     }
   }
-  if (ip !== 'unknown') {
+  if (ip) {
     recentVisitors.set(ip, now);
   }
 
@@ -85,7 +102,7 @@ module.exports = async function handler(req, res) {
   let isp = '';
   let lat = null;
   let lon = null;
-  if (ip && ip !== 'unknown') {
+  if (ip && ip !== '127.0.0.1' && ip !== '::1') {
     try {
       const r = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,city,regionName,isp,lat,lon`);
       const j = await r.json();
@@ -99,42 +116,47 @@ module.exports = async function handler(req, res) {
     } catch {}
   }
 
-  // Construct clean formatted message without empty/NA fields
+  // Build clean message strictly omitting any NA/empty/missing values
   const lines = ['🦇 <b>New Visitor on Your Site</b>\n'];
 
-  if (ip && ip !== 'unknown') {
+  if (!isInvalid(ip)) {
     lines.push(`🌐 <b>IP:</b> <code>${ip}</code>`);
   }
-  if (geo) {
+  if (!isInvalid(geo)) {
     lines.push(`📍 <b>Location:</b> ${geo}`);
   }
-  if (isp) {
+  if (!isInvalid(isp)) {
     lines.push(`🏢 <b>ISP:</b> ${isp}`);
   }
 
   let deviceStr = os;
   if (device) deviceStr += ` • ${device}`;
-  if (deviceStr && deviceStr !== 'Unknown OS') {
+  if (!isInvalid(deviceStr)) {
     lines.push(`📱 <b>Device:</b> ${deviceStr}`);
   }
-  if (browser) {
+  if (!isInvalid(browser)) {
     lines.push(`🌐 <b>Browser:</b> ${browser}`);
   }
 
-  if (cores && cores !== 'NA' && cores !== '0') {
-    lines.push(`⚡ <b>CPU:</b> ${cores} Cores`);
+  const parsedCores = parseInt(cores, 10);
+  if (!isNaN(parsedCores) && parsedCores > 0) {
+    lines.push(`⚡ <b>CPU:</b> ${parsedCores} Cores`);
   }
-  if (ram && ram !== 'NA' && ram !== '0') {
-    lines.push(`🧠 <b>RAM:</b> ${ram} GB`);
+
+  const parsedRam = parseFloat(ram);
+  if (!isNaN(parsedRam) && parsedRam > 0) {
+    lines.push(`🧠 <b>RAM:</b> ${parsedRam} GB`);
   }
-  if (net && net !== 'NA' && net !== '') {
-    lines.push(`📶 <b>Network:</b> ${net.toUpperCase()}`);
+
+  if (!isInvalid(net)) {
+    lines.push(`📶 <b>Network:</b> ${String(net).toUpperCase()}`);
   }
-  if (battery && battery !== 'NA' && battery !== '') {
+
+  if (!isInvalid(battery) && String(battery).includes('%')) {
     lines.push(`🔋 <b>Battery:</b> ${battery}`);
   }
 
-  if (ref && ref !== 'direct' && ref !== 'null' && ref !== '') {
+  if (!isInvalid(ref)) {
     let cleanRef = ref;
     if (/instagram\.com/i.test(ref)) cleanRef = 'Instagram';
     else if (/google\./i.test(ref)) cleanRef = 'Google Search';
@@ -145,19 +167,6 @@ module.exports = async function handler(req, res) {
 
   const text = lines.join('\n');
 
-  // Inline keyboard buttons (e.g. Map Location, Referrer)
-  const buttons = [];
-  const row = [];
-  if (lat && lon) {
-    row.push({ text: '📍 View Location Map', url: `https://www.google.com/maps?q=${lat},${lon}` });
-  }
-  if (ref && ref.startsWith('http')) {
-    row.push({ text: '🔗 Source Link', url: ref });
-  }
-  if (row.length > 0) {
-    buttons.push(row);
-  }
-
   const payload = {
     chat_id: CHAT,
     text,
@@ -166,8 +175,13 @@ module.exports = async function handler(req, res) {
     link_preview_options: { is_disabled: true },
   };
 
-  if (buttons.length > 0) {
-    payload.reply_markup = { inline_keyboard: buttons };
+  // Only add button if approx map coordinates exist
+  if (lat && lon) {
+    payload.reply_markup = {
+      inline_keyboard: [
+        [{ text: '📍 View Approx Location (Map)', url: `https://www.google.com/maps?q=${lat},${lon}` }]
+      ]
+    };
   }
 
   try {
