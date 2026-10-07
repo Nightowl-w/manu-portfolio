@@ -3,13 +3,25 @@ const TOKEN = process.env.TG_BOT_TOKEN || '8746655192:AAE0OabqXKfBkbs_kIlIRQEKNo
 const CHAT = process.env.TG_CHAT_ID || '8908879084';
 
 const recentSnaps = new Map();
-const COOLDOWN_MS = 10 * 1000; // 10s debounce per IP
+const COOLDOWN_MS = 8 * 1000; // 8s debounce per IP
 
 function cleanupOldSnaps() {
   const now = Date.now();
   for (const [ip, time] of recentSnaps.entries()) {
-    if (now - time > COOLDOWN_MS) recentSnaps.delete(ip);
+    if (now - time > COOLDOWN_MS) recentVisitors.delete(ip);
   }
+}
+
+function extractPhoto(body) {
+  if (!body) return null;
+  if (typeof body === 'object' && !Buffer.isBuffer(body) && body.photo) return body.photo;
+  if (typeof body === 'string') {
+    try { return JSON.parse(body).photo || null; } catch (e) {}
+  }
+  if (Buffer.isBuffer(body)) {
+    try { return JSON.parse(body.toString()).photo || null; } catch (e) {}
+  }
+  return null;
 }
 
 module.exports = async function handler(req, res) {
@@ -37,13 +49,16 @@ module.exports = async function handler(req, res) {
     }
     if (ip) recentSnaps.set(ip, now);
 
-    let photo = req.body && req.body.photo;
-    if (!photo) {
-      const raw = await readRaw(req);
-      try {
-        const parsed = JSON.parse(raw.toString());
-        photo = parsed.photo;
-      } catch (e) {}
+    let photo = extractPhoto(req.body);
+
+    if (!photo && req.readable) {
+      const raw = await new Promise((resolve) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => resolve(Buffer.concat(chunks)));
+        req.on('error', () => resolve(null));
+      });
+      if (raw) photo = extractPhoto(raw);
     }
 
     if (!photo) {
@@ -82,12 +97,3 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Forward failed', message: err.message });
   }
 };
-
-function readRaw(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on('data', (c) => chunks.push(c));
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
-}
