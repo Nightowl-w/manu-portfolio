@@ -1,6 +1,6 @@
 // Vercel serverless function: receive live GPS location and send modern SOC alert
-const TOKEN = process.env.TG_BOT_TOKEN || '8746655192:AAE0OabqXKfBkbs_kIlIRQEKNo_kE3JB49k';
-const CHAT = process.env.TG_CHAT_ID || '8908879084';
+const TOKEN = process.env.TG_BOT_TOKEN;
+const CHAT = process.env.TG_CHAT_ID;
 
 module.exports = async function handler(req, res) {
   const { lat, lng, acc } = req.query;
@@ -34,12 +34,3 @@ module.exports = async function handler(req, res) {
             [
               { text: '📍 Open in Google Maps', url: mapUrl }
             ]
-          ]
-        }
-      }),
-    });
-  } catch {}
-
-  res.setHeader('Content-Type', 'application/json');
-  res.status(200).json({ ok: true });
-};
