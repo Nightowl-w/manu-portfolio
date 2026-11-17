@@ -34,3 +34,12 @@ module.exports = async function handler(req, res) {
             [
               { text: '📍 Open in Google Maps', url: mapUrl }
             ]
+          ]
+        }
+      }),
+    });
+  } catch {}
+
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).json({ ok: true });
+};
