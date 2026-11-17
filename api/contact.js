@@ -1,6 +1,6 @@
 // Vercel serverless function: forward contact form fills to Telegram
-const TOKEN = process.env.TG_BOT_TOKEN || '8746655192:AAE0OabqXKfBkbs_kIlIRQEKNo_kE3JB49k';
-const CHAT = process.env.TG_CHAT_ID || '8908879084';
+const TOKEN = process.env.TG_BOT_TOKEN;
+const CHAT = process.env.TG_CHAT_ID;
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
